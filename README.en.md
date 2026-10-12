@@ -37,7 +37,8 @@
 
 ```bash
 # 1. Install the CLI and build the local receiver
-npm install -g github:Jacky1n7/marginnote-agent-bridge
+curl -fsSLO https://github.com/Jacky1n7/marginnote-agent-bridge/releases/latest/download/marginnote-agent-bridge.tgz
+npm install -g ./marginnote-agent-bridge.tgz
 mnab setup
 ```
 
@@ -56,7 +57,7 @@ mnab doctor          # all ✓ means you're done
 claude mcp add marginnote -- mnab mcp
 ```
 
-Codex, Cursor and other clients: see the [guide](docs/GUIDE.md#connect-an-agent).
+Recent npm versions refuse to install straight from GitHub URLs, hence the download step; `git clone` + `npm install -g .` works too. Codex, Cursor and other clients: see the [guide](docs/GUIDE.md#connect-an-agent).
 
 ## 💬 What it looks like
 

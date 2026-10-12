@@ -114,7 +114,7 @@ async function cmdSetup() {
   console.log(`
 2/3 Install the add-on in MarginNote (one time):
     • MarginNote → Settings → Extension → enable "Allow uncertified extensions"
-    • File → Extensions → Import → choose ${addon ? ascii : '(download MNAgentBridge-*.mnaddon from the GitHub release)'}
+    • File → Extensions → Import → choose ${addon ? ascii : '(download https://github.com/Jacky1n7/marginnote-agent-bridge/releases/latest/download/MNAgentBridge.mnaddon)'}
     • Restart MarginNote when it asks
 
 3/3 Pair:  mnab pair      (then tap "Allow" in MarginNote)

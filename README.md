@@ -37,7 +37,8 @@
 
 ```bash
 # 1. 安装命令行，构建本机回执程序
-npm install -g github:Jacky1n7/marginnote-agent-bridge
+curl -fsSLO https://github.com/Jacky1n7/marginnote-agent-bridge/releases/latest/download/marginnote-agent-bridge.tgz
+npm install -g ./marginnote-agent-bridge.tgz
 mnab setup
 ```
 
@@ -56,7 +57,7 @@ mnab doctor          # 全部 ✓ 就好了
 claude mcp add marginnote -- mnab mcp
 ```
 
-Codex、Cursor 等其他客户端的配置见 [使用指南](docs/GUIDE.md#connect-an-agent)。
+新版 npm（11+）默认不允许直接从 GitHub 地址安装，所以先下载再装；也可以 `git clone` 后在目录里 `npm install -g .`。Codex、Cursor 等其他客户端的配置见 [使用指南](docs/GUIDE.md#connect-an-agent)。
 
 ## 💬 用起来是什么样
 

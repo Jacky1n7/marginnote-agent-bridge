@@ -37,7 +37,8 @@ A round trip takes about 150–250 ms.
 Requirements: macOS, MarginNote 4 (tested with 4.4.6), Node.js ≥ 18, Xcode Command Line Tools (`xcode-select --install`, used to compile the 60-line receiver app).
 
 ```bash
-npm install -g github:Jacky1n7/marginnote-agent-bridge   # or: git clone … && npm link
+curl -fsSLO https://github.com/Jacky1n7/marginnote-agent-bridge/releases/latest/download/marginnote-agent-bridge.tgz
+npm install -g ./marginnote-agent-bridge.tgz   # or: git clone … && cd marginnote-agent-bridge && npm install -g .
 mnab setup        # builds + registers the receiver, copies the add-on to ~/Downloads
 ```
 
