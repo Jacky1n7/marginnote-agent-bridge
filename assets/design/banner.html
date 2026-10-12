@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MN Agent Bridge banner</title>
+<style>
+  /* Render: Chrome --headless --window-size=1280,640 --force-device-scale-factor=2 banner.html?theme=dark */
+  :root {
+    --bg: #0b1020; --bg2: #121a33; --ink: #f4f6fb; --sub: #c9d2ea; --muted: #8b95b3;
+    --line: #3a4670; --node: #172042; --accent: #5eead4; --accent2: #fbbf24; --card: #1b2550;
+  }
+  .light {
+    --bg: #f6f4ee; --bg2: #ffffff; --ink: #141a2b; --sub: #3a4361; --muted: #737b95;
+    --line: #c8cbd6; --node: #ffffff; --accent: #0f9d8a; --accent2: #e08a00; --card: #ffffff;
+  }
+  .ink {
+    --bg: #101418; --bg2: #101418; --ink: #f2efe8; --sub: #d6d1c4; --muted: #8e8a80;
+    --line: #4a4f57; --node: #101418; --accent: #f2efe8; --accent2: #e8a33d; --card: #101418;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    background: radial-gradient(1200px 700px at 78% 50%, var(--bg2), var(--bg) 70%);
+    color: var(--ink);
+    font-family: -apple-system, "SF Pro Display", "Hiragino Sans GB", sans-serif;
+    position: relative;
+  }
+  .text { position: absolute; left: 84px; top: 0; bottom: 0; width: 640px; display: flex; flex-direction: column; justify-content: center; }
+  .eyebrow { font-family: "SF Mono", ui-monospace, monospace; font-size: 17px; letter-spacing: .18em; color: var(--accent); margin-bottom: 26px; }
+  h1 { font-size: 92px; line-height: .98; font-weight: 700; letter-spacing: -0.035em; }
+  h1 .thin { font-weight: 300; color: var(--sub); }
+  .zh { font-family: "Hiragino Sans GB", -apple-system, sans-serif; font-size: 31px; font-weight: 600; margin-top: 34px; letter-spacing: .02em; }
+  .en { font-size: 19px; color: var(--muted); margin-top: 14px; line-height: 1.5; max-width: 560px; }
+  .chips { display: flex; gap: 10px; margin-top: 30px; }
+  .chip { font-family: "SF Mono", ui-monospace, monospace; font-size: 14px; color: var(--sub); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; }
+  svg { position: absolute; right: 0; top: 0; }
+  .mono { font-family: "SF Mono", ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div class="text">
+  <div class="eyebrow">MARGINNOTE 4 ⇄ AI AGENTS</div>
+  <h1>MN Agent<br><span class="thin">Bridge</span></h1>
+  <div class="zh">让 AI Agent 直接读写 MarginNote 脑图</div>
+  <div class="en">Read, write and reorganize MarginNote from Claude Code, Codex or any MCP client.</div>
+  <div class="chips"><span class="chip">MCP</span><span class="chip">CLI</span><span class="chip">URL scheme</span><span class="chip">44 actions</span></div>
+</div>
+
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none">
+<g transform="translate(-42,-46) scale(1.15)">
+  <!-- agent -->
+  <circle cx="92" cy="320" r="46" stroke="var(--accent2)" stroke-width="2.2" fill="var(--node)"/>
+  <text x="92" y="330" text-anchor="middle" class="mono" font-size="28" font-weight="600" fill="var(--accent2)">›_</text>
+
+  <!-- bridge: request goes over, answer comes back -->
+  <path d="M140 304 C 190 230, 250 230, 298 296" stroke="var(--accent2)" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round"/>
+  <path d="M298 344 C 250 410, 190 410, 140 336" stroke="var(--accent)" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round"/>
+  <circle cx="219" cy="250" r="4.5" fill="var(--accent2)"/>
+  <circle cx="219" cy="390" r="4.5" fill="var(--accent)"/>
+
+  <!-- mind map root -->
+  <rect x="300" y="290" width="92" height="60" rx="10" stroke="var(--accent)" stroke-width="2.2" fill="var(--node)"/>
+  <rect x="314" y="306" width="54" height="5" rx="2.5" fill="var(--accent)"/>
+  <rect x="314" y="318" width="64" height="4" rx="2" fill="var(--muted)" opacity=".7"/>
+  <rect x="314" y="328" width="40" height="4" rx="2" fill="var(--muted)" opacity=".7"/>
+
+  <!-- branches -->
+  <g stroke="var(--line)" stroke-width="2" stroke-linecap="round">
+    <path d="M392 320 C 420 320, 420 172, 446 172"/>
+    <path d="M392 320 C 420 320, 420 268, 446 268"/>
+    <path d="M392 320 C 420 320, 420 372, 446 372"/>
+    <path d="M392 320 C 420 320, 420 468, 446 468"/>
+  </g>
+  <!-- children -->
+  <g stroke="var(--line)" stroke-width="2" fill="var(--card)">
+    <rect x="446" y="148" width="92" height="48" rx="9"/>
+    <rect x="446" y="244" width="92" height="48" rx="9"/>
+    <rect x="446" y="448" width="92" height="40" rx="9"/>
+  </g>
+  <rect x="446" y="348" width="92" height="48" rx="9" stroke="var(--accent2)" stroke-width="2.2" fill="var(--card)"/>
+  <g fill="var(--muted)" opacity=".75">
+    <rect x="458" y="162" width="52" height="4" rx="2"/><rect x="458" y="172" width="66" height="4" rx="2"/><rect x="458" y="182" width="38" height="4" rx="2"/>
+    <rect x="458" y="258" width="60" height="4" rx="2"/><rect x="458" y="268" width="44" height="4" rx="2"/><rect x="458" y="278" width="58" height="4" rx="2"/>
+    <rect x="458" y="461" width="56" height="4" rx="2"/><rect x="458" y="471" width="36" height="4" rx="2"/>
+  </g>
+  <g fill="var(--accent2)">
+    <rect x="458" y="362" width="48" height="4" rx="2"/><rect x="458" y="372" width="66" height="4" rx="2"/><rect x="458" y="382" width="30" height="4" rx="2"/>
+  </g>
+  <text x="492" y="425" text-anchor="middle" class="mono" font-size="13" fill="var(--accent2)">+ new card</text>
+</g>
+</svg>
+<script>
+  const t = new URLSearchParams(location.search).get('theme');
+  if (t && t !== 'dark') document.documentElement.className = t;
+</script>
+</body>
+</html>

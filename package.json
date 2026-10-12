@@ -1,0 +1,48 @@
+{
+  "name": "marginnote-agent-bridge",
+  "version": "0.1.0",
+  "description": "Give AI agents (Claude Code, Codex, any MCP client) a full, authenticated port into MarginNote 4.",
+  "license": "MIT",
+  "author": "Xiaoran Li (https://github.com/Jacky1n7)",
+  "type": "module",
+  "bin": {
+    "mnab": "cli/bin/mnab.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "darwin"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "setup": "sh receiver/build.sh",
+    "e2e": "node scripts/e2e.mjs"
+  },
+  "files": [
+    "addon",
+    "assets/logo.png",
+    "cli",
+    "docs",
+    "receiver",
+    "scripts/build.mjs",
+    "skills",
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jacky1n7/marginnote-agent-bridge.git"
+  },
+  "keywords": [
+    "marginnote",
+    "mcp",
+    "agent",
+    "claude-code",
+    "codex",
+    "mindmap",
+    "url-scheme"
+  ]
+}

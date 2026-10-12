@@ -1,0 +1,957 @@
+{
+  "version": "0.1.0",
+  "actions": [
+    {
+      "name": "ping",
+      "group": "system",
+      "summary": "Check that the bridge is alive and whether the given token is valid. No token required.",
+      "write": false,
+      "public": true,
+      "async": false,
+      "experimental": false,
+      "params": {},
+      "returns": "{ bridgeVersion, protocol, appVersion, os, paired }"
+    },
+    {
+      "name": "pair",
+      "group": "system",
+      "summary": "Request a token. MarginNote shows an Allow/Deny alert; the token is returned only if the user taps Allow.",
+      "write": false,
+      "public": true,
+      "async": true,
+      "experimental": false,
+      "params": {
+        "client": {
+          "type": "string",
+          "required": true,
+          "desc": "Human-readable client name shown in the alert, e.g. \"Claude Code\"."
+        }
+      },
+      "returns": "{ token, client }"
+    },
+    {
+      "name": "auth.clients",
+      "group": "system",
+      "summary": "List paired clients (token hints only).",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {},
+      "returns": "[{ client, createdAt, lastUsed, tokenHint }]"
+    },
+    {
+      "name": "auth.revoke",
+      "group": "system",
+      "summary": "Revoke the calling token (default) or every token.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "all": {
+          "type": "boolean",
+          "default": false,
+          "desc": "Revoke every paired client, not only the caller."
+        }
+      },
+      "returns": "{ revoked }"
+    },
+    {
+      "name": "capabilities",
+      "group": "system",
+      "summary": "Self-description: every action with its parameters, so agents can discover the API at runtime.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {},
+      "returns": "{ bridgeVersion, protocol, actions: [{ name, group, summary, write, params, returns }] }"
+    },
+    {
+      "name": "bridge.log",
+      "group": "system",
+      "summary": "Recent requests handled by the bridge (newest last).",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "limit": {
+          "type": "integer",
+          "default": 30
+        }
+      },
+      "returns": "[{ at, id, action, client, ok, code, ms }]"
+    },
+    {
+      "name": "context.get",
+      "group": "context",
+      "summary": "What the user is looking at: open notebook, focused and selected notes, current document and page, text selection.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {},
+      "returns": "{ studyMode, notebook, focusNote, selectedNotes, document, page, selectionText }"
+    },
+    {
+      "name": "ui.openNotebook",
+      "group": "ui",
+      "summary": "Open a notebook (and optionally a document) in the current window.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "notebookId": {
+          "type": "string",
+          "required": true
+        },
+        "docMd5": {
+          "type": "string",
+          "desc": "Document to open alongside the notebook."
+        }
+      },
+      "returns": "{ opened }"
+    },
+    {
+      "name": "ui.focusNote",
+      "group": "ui",
+      "summary": "Scroll to and highlight a note in the mind map, the document, or the floating mind map. isFocusNote tells whether MarginNote also made it the focus note (usually it does not; selection stays with the user).",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "mindmap",
+            "document",
+            "float"
+          ],
+          "default": "mindmap"
+        }
+      },
+      "returns": "{ focused, isFocusNote }"
+    },
+    {
+      "name": "ui.hud",
+      "group": "ui",
+      "summary": "Show a short toast message inside MarginNote.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "message": {
+          "type": "string",
+          "required": true
+        },
+        "seconds": {
+          "type": "number",
+          "default": 2
+        }
+      },
+      "returns": "{ shown }"
+    },
+    {
+      "name": "ui.queryCommand",
+      "group": "ui",
+      "summary": "Check whether a built-in MarginNote command is available right now (see docs/COMMANDS.md).",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "command": {
+          "type": "string",
+          "required": true
+        },
+        "keyFlags": {
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "returns": "{ command, disabled, checked }"
+    },
+    {
+      "name": "ui.command",
+      "group": "ui",
+      "summary": "Run any built-in MarginNote command (menu item / shortcut) in the current window, e.g. ZoomToFit, ViewExpandAll, ToggleMindMap. Card commands act on the card the user has selected; some commands open dialogs that need the user.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "command": {
+          "type": "string",
+          "required": true
+        },
+        "keyFlags": {
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "returns": "{ command, ran }"
+    },
+    {
+      "name": "ui.undo",
+      "group": "ui",
+      "summary": "Undo the last change in MarginNote (every bridge write is one undo step named \"Agent: <action>\").",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {},
+      "returns": "{ undone }"
+    },
+    {
+      "name": "ui.redo",
+      "group": "ui",
+      "summary": "Redo the last undone change.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {},
+      "returns": "{ redone }"
+    },
+    {
+      "name": "notebook.list",
+      "group": "notebooks",
+      "summary": "List all study sets / notebooks.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "mindmap",
+            "cardDeck",
+            "document",
+            "all"
+          ],
+          "default": "all"
+        }
+      },
+      "returns": "[{ id, title, type, lastVisit, documentCount, url }]"
+    },
+    {
+      "name": "notebook.get",
+      "group": "notebooks",
+      "summary": "Notebook details with its documents and root notes.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "notebookId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "returns": "{ ...notebook, documents: [...], roots: [noteSummary] }"
+    },
+    {
+      "name": "notebook.rename",
+      "group": "notebooks",
+      "summary": "Rename a notebook.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "notebookId": {
+          "type": "string",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "returns": "notebook summary"
+    },
+    {
+      "name": "document.list",
+      "group": "documents",
+      "summary": "List documents (PDF/EPUB…), optionally only those attached to one notebook.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "notebookId": {
+          "type": "string",
+          "desc": "Only documents of this notebook."
+        }
+      },
+      "returns": "[{ docMd5, title, pageCount, path, lastVisit }]"
+    },
+    {
+      "name": "document.get",
+      "group": "documents",
+      "summary": "Document details including its table of contents.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "docMd5": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "returns": "{ ...document, toc }"
+    },
+    {
+      "name": "document.pageText",
+      "group": "documents",
+      "summary": "Extract the text of one page of a document (needs a text layer; scanned pages return little or nothing).",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": true,
+      "params": {
+        "docMd5": {
+          "type": "string",
+          "required": true
+        },
+        "page": {
+          "type": "integer",
+          "required": true,
+          "desc": "1-based page number."
+        },
+        "raw": {
+          "type": "boolean",
+          "default": false,
+          "desc": "Also return the raw native structure (for debugging)."
+        }
+      },
+      "returns": "{ docMd5, page, text }"
+    },
+    {
+      "name": "notebook.backup",
+      "group": "notebooks",
+      "summary": "Export a full copy of a notebook into MarginNote's own storage (Documents/AgentBridgeBackups). Take one before large edits.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": true,
+      "params": {
+        "notebookId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "returns": "{ file, path }"
+    },
+    {
+      "name": "notebook.backups",
+      "group": "notebooks",
+      "summary": "List backups created by notebook.backup.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": true,
+      "params": {},
+      "returns": "[{ file }]"
+    },
+    {
+      "name": "notebook.restoreBackup",
+      "group": "notebooks",
+      "summary": "Import a backup made by notebook.backup back into MarginNote (MarginNote decides whether it merges or adds a copy).",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": true,
+      "params": {
+        "file": {
+          "type": "string",
+          "required": true,
+          "desc": "File name from notebook.backups."
+        },
+        "merge": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "returns": "{ imported }"
+    },
+    {
+      "name": "note.get",
+      "group": "notes",
+      "summary": "Full details of one note: title, excerpt, comments, tags, parent/children, source page, dates.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "note.batchGet",
+      "group": "notes",
+      "summary": "Details of several notes at once. Missing ids are reported instead of failing.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteIds": {
+          "type": "array",
+          "required": true,
+          "items": "string"
+        }
+      },
+      "returns": "{ notes: [detail], missing: [id] }"
+    },
+    {
+      "name": "note.tree",
+      "group": "notes",
+      "summary": "A subtree (from a note) or a whole mind map (from a notebook) as JSON, Markdown or an indented outline.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "desc": "Root of the subtree. Give noteId or notebookId."
+        },
+        "notebookId": {
+          "type": "string",
+          "desc": "Dump every root of this notebook."
+        },
+        "depth": {
+          "type": "integer",
+          "default": 3,
+          "desc": "Levels below the root to include (max 50)."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "json",
+            "markdown",
+            "outline"
+          ],
+          "default": "json"
+        },
+        "headingLevels": {
+          "type": "integer",
+          "default": 3,
+          "desc": "markdown: levels rendered as # headings before switching to bullets."
+        },
+        "includeComments": {
+          "type": "boolean",
+          "default": false,
+          "desc": "markdown: include text comments as quotes."
+        }
+      },
+      "returns": "json: { roots: [tree] } | markdown/outline: { text }"
+    },
+    {
+      "name": "note.search",
+      "group": "notes",
+      "summary": "Search notes by text or regex in titles, excerpts and comments, in one notebook or all notebooks.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "query": {
+          "type": "string",
+          "required": true
+        },
+        "notebookId": {
+          "type": "string",
+          "desc": "Limit to one notebook (recommended)."
+        },
+        "regex": {
+          "type": "boolean",
+          "default": false
+        },
+        "caseSensitive": {
+          "type": "boolean",
+          "default": false
+        },
+        "fields": {
+          "type": "array",
+          "items": "string",
+          "default": [
+            "title",
+            "excerpt",
+            "comments"
+          ],
+          "desc": "Any of title, excerpt, comments."
+        },
+        "limit": {
+          "type": "integer",
+          "default": 50
+        }
+      },
+      "returns": "{ results: [{ ...noteSummary, notebookId, matchedIn, path }], scanned, truncated }"
+    },
+    {
+      "name": "tag.list",
+      "group": "tags",
+      "summary": "All #tags used in a notebook with counts.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "notebookId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "returns": "[{ tag, count }]"
+    },
+    {
+      "name": "note.image",
+      "group": "notes",
+      "summary": "The image of an image excerpt, or of a handwriting/image comment, as base64.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "commentIndex": {
+          "type": "integer",
+          "desc": "Index of a PaintNote comment; omit for the excerpt image."
+        }
+      },
+      "returns": "{ mime, base64, bytes }"
+    },
+    {
+      "name": "review.status",
+      "group": "review",
+      "summary": "Whether a note is currently in a review deck.",
+      "write": false,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "returns": "{ noteId, inReview }"
+    },
+    {
+      "name": "note.create",
+      "group": "notes",
+      "summary": "Create a card as a child of parentId (or as a root of notebookId), with optional excerpt, comments, tags and color.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "parentId": {
+          "type": "string",
+          "desc": "Parent note. Either parentId or notebookId is required."
+        },
+        "notebookId": {
+          "type": "string",
+          "desc": "Create a root note in this notebook."
+        },
+        "beforeId": {
+          "type": "string",
+          "desc": "Insert before this sibling instead of appending."
+        },
+        "comments": {
+          "type": "array",
+          "desc": "Comments to append: \"markdown text\" or {text, markdown} or {linkTo: noteId} or {html, text}."
+        },
+        "tags": {
+          "type": "array",
+          "items": "string",
+          "desc": "Hashtags without \"#\"."
+        },
+        "title": {
+          "type": "string",
+          "desc": "Card title (plain text, not rendered as Markdown)."
+        },
+        "excerpt": {
+          "type": "string",
+          "desc": "Card body / excerpt text. Rendered as Markdown + LaTeX when markdown=true."
+        },
+        "markdown": {
+          "type": "boolean",
+          "desc": "Render the excerpt as Markdown (default true when excerpt is given on create)."
+        },
+        "color": {
+          "type": "integer",
+          "desc": "Color index 0-15."
+        },
+        "fill": {
+          "type": "integer",
+          "desc": "Fill style index."
+        }
+      },
+      "returns": "note detail of the new card"
+    },
+    {
+      "name": "note.update",
+      "group": "notes",
+      "summary": "Change title, excerpt, Markdown flag, color or fill of a card. Omitted fields stay unchanged.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "desc": "Card title (plain text, not rendered as Markdown)."
+        },
+        "excerpt": {
+          "type": "string",
+          "desc": "Card body / excerpt text. Rendered as Markdown + LaTeX when markdown=true."
+        },
+        "markdown": {
+          "type": "boolean",
+          "desc": "Render the excerpt as Markdown (default true when excerpt is given on create)."
+        },
+        "color": {
+          "type": "integer",
+          "desc": "Color index 0-15."
+        },
+        "fill": {
+          "type": "integer",
+          "desc": "Fill style index."
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "note.delete",
+      "group": "notes",
+      "summary": "Delete a card. Refuses when it has children unless recursive=true.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "recursive": {
+          "type": "boolean",
+          "default": false,
+          "desc": "Also delete all descendants."
+        }
+      },
+      "returns": "{ deleted, descendants }"
+    },
+    {
+      "name": "note.move",
+      "group": "notes",
+      "summary": "Move a card (with its subtree) under another parent, before a sibling, or out to the notebook root.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "parentId": {
+          "type": "string",
+          "desc": "New parent. Omit with toRoot=true to detach to the root."
+        },
+        "beforeId": {
+          "type": "string",
+          "desc": "Place before this child of the new parent."
+        },
+        "toRoot": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "note.clone",
+      "group": "notes",
+      "summary": "Copy a card (MarginNote clone) into a notebook, optionally under a parent.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "notebookId": {
+          "type": "string",
+          "desc": "Target notebook (default: same notebook)."
+        },
+        "parentId": {
+          "type": "string",
+          "desc": "Place the copy under this note."
+        }
+      },
+      "returns": "note detail of the copy"
+    },
+    {
+      "name": "note.link",
+      "group": "notes",
+      "summary": "Add a note link (marginnote4app://note/…) from one card to another, optionally both ways.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "targetId": {
+          "type": "string",
+          "required": true
+        },
+        "bidirectional": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "returns": "{ linked }"
+    },
+    {
+      "name": "comment.add",
+      "group": "comments",
+      "summary": "Append a comment: Markdown (default, supports LaTeX), plain text, HTML, or a link to another note.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "text": {
+          "type": "string",
+          "desc": "Comment text."
+        },
+        "markdown": {
+          "type": "boolean",
+          "default": true
+        },
+        "html": {
+          "type": "string",
+          "desc": "HTML comment instead of text."
+        },
+        "linkTo": {
+          "type": "string",
+          "desc": "Note id to link instead of text."
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "comment.remove",
+      "group": "comments",
+      "summary": "Remove the comment at an index (see note.get for indices).",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "index": {
+          "type": "integer",
+          "required": true
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "comment.update",
+      "group": "comments",
+      "summary": "Replace the text of a text/Markdown comment, keeping its position.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "index": {
+          "type": "integer",
+          "required": true
+        },
+        "text": {
+          "type": "string",
+          "required": true
+        },
+        "markdown": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "comment.reorder",
+      "group": "comments",
+      "summary": "Reorder comments. order lists current indices in the new order, e.g. [2,0,1].",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "order": {
+          "type": "array",
+          "required": true,
+          "items": "integer"
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "tag.add",
+      "group": "tags",
+      "summary": "Add #tags to a card (stored the MarginNote way, as a \"#a #b\" comment).",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "tags": {
+          "type": "array",
+          "required": true,
+          "items": "string"
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "tag.remove",
+      "group": "tags",
+      "summary": "Remove #tags from a card.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "noteId": {
+          "type": "string",
+          "required": true
+        },
+        "tags": {
+          "type": "array",
+          "required": true,
+          "items": "string"
+        }
+      },
+      "returns": "note detail"
+    },
+    {
+      "name": "note.importMarkdown",
+      "group": "notes",
+      "summary": "Turn a Markdown outline (# headings and nested lists) into a card tree under parentId or at the notebook root.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "markdown": {
+          "type": "string",
+          "required": true
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "notebookId": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "title",
+            "excerpt",
+            "comment"
+          ],
+          "default": "title",
+          "desc": "title: heading→title, body→excerpt. excerpt: heading+body→excerpt (no title). comment: heading→title, body→Markdown comment."
+        },
+        "renderMarkdown": {
+          "type": "boolean",
+          "default": true,
+          "desc": "Render bodies as Markdown/LaTeX."
+        },
+        "color": {
+          "type": "integer",
+          "desc": "Color index for every created card."
+        }
+      },
+      "returns": "{ created: count, tree: [{ id, title, children }] }"
+    },
+    {
+      "name": "batch",
+      "group": "batch",
+      "summary": "Run many actions in one round trip and ONE undo step. Later ops can reference earlier results with \"$<index>.<field>\", e.g. {\"parentId\": \"$0.id\"}. With atomic=true (default) a failure rolls everything back.",
+      "write": true,
+      "public": false,
+      "async": false,
+      "experimental": false,
+      "params": {
+        "notebookId": {
+          "type": "string",
+          "required": true,
+          "desc": "Notebook that receives the single undo step."
+        },
+        "ops": {
+          "type": "array",
+          "required": true,
+          "desc": "[{ \"action\": \"note.create\", \"params\": {...} }, ...] (max 500)."
+        },
+        "atomic": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "returns": "{ results: [data], completed } or error with details.failedIndex"
+    }
+  ]
+}
