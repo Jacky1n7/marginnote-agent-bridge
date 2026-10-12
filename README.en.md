@@ -20,7 +20,7 @@
 
 ## ✨ What it can do
 
-| | |
+| Capability | Details |
 | --- | --- |
 | 🧠 **Read** | notebooks, whole mind maps (JSON / Markdown / outline), card details, comments, tags, images and handwriting, PDF outline and page text, what you have open and selected |
 | ✏️ **Write** | create, update, delete, move, clone and link cards; add / edit / reorder / remove comments; tags and colors; **turn a Markdown outline into a card tree** (LaTeX supported) |
